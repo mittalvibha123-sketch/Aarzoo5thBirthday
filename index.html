@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Aarzoo's 5th Birthday Invitation 💖 Barbie & Ken Party</title>
+  
+  <!-- Tailwind CSS & Google Fonts -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;600;700;800&family=Pacifico&display=swap" rel="stylesheet">
+  
+  <!-- Canvas Confetti & Phosphor Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            barbie: {
+              DEFAULT: '#FF1493',
+              deep: '#D81B60',
+              hot: '#E0218A',
+              light: '#FF69B4',
+              soft: '#FFE4F3'
+            },
+            ken: {
+              DEFAULT: '#0077B6',
+              cyan: '#00AEEF',
+              sky: '#38BDF8',
+              soft: '#E0F2FE'
+            },
+            gold: {
+              DEFAULT: '#F59E0B',
+              shimmer: '#FBBF24',
+              amber: '#D97706',
+              foil: '#FFFDF0',
+              dark: '#92400E'
+            }
+          },
+          fontFamily: {
+            barbie: ['Pacifico', 'cursive'],
+            chunky: ['Fredoka One', 'cursive'],
+            body: ['Quicksand', 'sans-serif']
+          },
+          boxShadow: {
+            'glow-pink': '0 0 30px rgba(255, 20, 147, 0.4)',
+            'glow-gold': '0 0 25px rgba(245, 158, 11, 0.45)',
+            'glow-ken': '0 0 25px rgba(0, 174, 239, 0.35)',
+            'wax': '0 8px 20px rgba(180, 83, 9, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.7)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* 3D Envelope Physics */
+    .perspective-container {
+      perspective: 1400px;
+    }
+    .envelope-3d {
+      transform-style: preserve-3d;
+      transition: all 0.85s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .envelope-flap {
+      transform-origin: top center;
+      transition: transform 0.85s cubic-bezier(0.4, 0, 0.2, 1);
+      backface-visibility: visible;
+    }
+    .flap-open {
+      transform: rotateX(180deg);
+      z-index: 5;
+    }
+    .card-slide-out {
+      animation: cardEject 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes cardEject {
+      0% { transform: translateY(0px) scale(0.92); opacity: 1; }
+      50% { transform: translateY(-200px) scale(1.02); opacity: 1; z-index: 40; }
+      100% { transform: translateY(-260px) scale(1.06); opacity: 0; }
+    }
+    .gold-foil {
+      background: linear-gradient(135deg, #F59E0B 0%, #FFFDF0 35%, #FBBF24 50%, #D97706 75%, #FDE68A 100%);
+      background-size: 200% 200%;
+      animation: goldSheen 4s ease infinite;
+    }
+    @keyframes goldSheen {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .envelope-airmail-border {
+      background: repeating-linear-gradient(
+        135deg,
+        #FF1493 0px,
+        #FF1493 14px,
+        #FFFFFF 14px,
+        #FFFFFF 22px,
+        #00AEEF 22px,
+        #00AEEF 36px,
+        #F59E0B 36px,
+        #F59E0B 44px
+      );
+    }
+    .postage-stamp {
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
+      border: 3px dashed #F59E0B;
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-pink-100 via-sky-50 to-amber-50 font-body text-gray-800 min-h-screen overflow-x-hidden selection:bg-pink-300 antialiased pb-20">
+
+  <!-- Interactive Sparkles Background Canvas -->
+  <canvas id="sparkleCanvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
+
+  <!-- Sticky Top Quick-Navigation Bar -->
+  <header id="stickyNavBar" class="fixed top-0 inset-x-0 z-40 bg-white/90 backdrop-blur-md border-b-2 border-pink-200 shadow-md py-2 px-3 sm:px-6 flex items-center justify-between transition-all">
+    <div class="flex items-center gap-2">
+      <span class="font-barbie text-xl sm:text-2xl text-barbie">Aarzoo is Turning 5!</span>
+      <span class="hidden sm:inline-block text-[11px] font-chunky uppercase tracking-wider bg-pink-100 text-pink-600 px-2.5 py-0.5 rounded-full border border-pink-200">
+        Barbie & Ken Party
+      </span>
+    </div>
+
+    <!-- Quick Navigation Links & Audio SFX Controller -->
+    <nav class="flex items-center gap-2 sm:gap-3">
+      <!-- SFX Sound Toggle Button -->
+      <button id="sfxToggleBtn" onclick="toggleSoundFx()" title="Toggle Sound Effects" class="inline-flex items-center gap-1 text-xs font-chunky px-2.5 py-1.5 rounded-lg border border-pink-200 bg-pink-50 text-barbie hover:bg-pink-100 transition cursor-pointer">
+        <i id="sfxIcon" class="ph-bold ph-speaker-high text-base"></i>
+        <span class="hidden sm:inline" id="sfxLabel">SFX On</span>
+      </button>
+
+      <button onclick="scrollToSection('heroDetailsSection')" class="hidden sm:inline-flex items-center gap-1 text-xs font-chunky text-gray-700 hover:text-barbie px-2.5 py-1.5 rounded-lg hover:bg-pink-50 transition cursor-pointer">
+        <i class="ph-bold ph-calendar-star"></i> Details
+      </button>
+      <button onclick="scrollToSection('photoGallerySection')" class="hidden sm:inline-flex items-center gap-1 text-xs font-chunky text-gray-700 hover:text-amber-600 px-2.5 py-1.5 rounded-lg hover:bg-amber-50 transition cursor-pointer">
+        <i class="ph-bold ph-image"></i> Photos
+      </button>
+      <button onclick="scrollToSection('quizSection')" class="inline-flex items-center gap-1 text-xs font-chunky text-ken hover:text-sky-800 px-2.5 py-1.5 rounded-lg hover:bg-sky-50 transition cursor-pointer">
+        <i class="ph-bold ph-game-controller"></i> <span>Quiz</span>
+      </button>
+
+      <!-- PROMINENT "SKIP TO RSVP" TAB -->
+      <button onclick="scrollToSection('rsvpSection')" class="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-500 hover:to-yellow-500 text-amber-950 font-chunky text-xs sm:text-sm shadow-md hover:shadow-glow-gold border-2 border-yellow-200 transition transform hover:scale-105 active:scale-95 cursor-pointer">
+        <i class="ph-fill ph-lightning text-amber-900 text-sm sm:text-base"></i>
+        <span>⚡ Skip to RSVP</span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- FLOATING QUICK RSVP PILL (Bottom Right on scroll) -->
+  <aside id="floatingRsvpPill" class="fixed bottom-5 right-5 z-40 transition-all duration-300 transform translate-y-24 opacity-0">
+    <button onclick="scrollToSection('rsvpSection')" class="group flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-barbie via-pink-500 to-amber-500 text-white font-chunky text-sm shadow-2xl hover:shadow-glow-pink border-2 border-white transition transform hover:scale-105 active:scale-95 cursor-pointer">
+      <i class="ph-bold ph-whatsapp-logo text-xl text-green-300"></i>
+      <span>Quick RSVP</span>
+    </button>
+  </aside>
+
+  <!-- ========================================================================= -->
+  <!-- 1. FULLSCREEN 3D ENVELOPE (FIRST PAGE USER EXPERIENCE)                    -->
+  <!-- ========================================================================= -->
+  <section id="envelopeOverlay" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-gradient-to-tr from-purple-950/85 via-pink-950/80 to-sky-950/85 backdrop-blur-md transition-all duration-700" aria-label="Invitation Envelope">
+    
+    <div class="perspective-container w-full max-w-lg">
+      <div id="envelopeCard" class="envelope-3d relative w-full aspect-[4/3] sm:h-[420px] rounded-3xl envelope-airmail-border p-2 sm:p-2.5 shadow-2xl cursor-pointer">
+        
+        <!-- Main Envelope Outer Face -->
+        <div class="relative w-full h-full bg-gradient-to-br from-white via-pink-50 to-sky-50 rounded-2xl overflow-hidden border-2 border-yellow-300 shadow-inner p-4 sm:p-6 flex flex-col justify-between">
+          
+          <!-- TOP ROW: Special Delivery & Postage Stamp -->
+          <div class="relative z-10 flex items-start justify-between gap-2">
+            
+            <div class="flex flex-col text-left">
+              <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-barbie text-white font-chunky text-[11px] sm:text-xs tracking-wider uppercase shadow">
+                <i class="ph-fill ph-sparkle text-yellow-300"></i> Special Delivery
+              </span>
+              <div class="mt-2">
+                <p class="text-xs text-gray-500 italic font-semibold">Special Airmail For You From:</p>
+                <p class="font-chunky text-sm sm:text-base text-barbie-deep flex items-center gap-1">
+                  Aarzoo's Dreamhouse <i class="ph-fill ph-heart text-pink-500"></i>
+                </p>
+                <p class="text-[11px] text-ken font-bold flex items-center gap-1">
+                  <i class="ph-bold ph-map-pin"></i> Bhartiya City, Bengaluru
+                </p>
+              </div>
+            </div>
+
+            <!-- Right: Aarzoo's Postage Stamp -->
+            <div class="relative flex flex-col items-center">
+              <div class="postage-stamp bg-white p-1 rounded-md shadow-lg rotate-3 transform hover:rotate-0 transition">
+                <div class="w-16 h-20 sm:w-20 sm:h-24 overflow-hidden rounded bg-pink-100 relative flex items-center justify-center">
+                  <img src="image_10.png" alt="Aarzoo Princess Stamp" class="w-full h-full object-cover object-top" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                  <div class="hidden w-full h-full items-center justify-center bg-gradient-to-tr from-pink-500 to-purple-600 text-white p-1 text-center">
+                    <span class="text-2xl">👑</span>
+                  </div>
+                  <div class="absolute bottom-0 inset-x-0 bg-barbie/90 text-[8px] text-white font-chunky text-center py-0.5">
+                    AARZOO 5¢
+                  </div>
+                </div>
+              </div>
+              <div class="absolute -left-5 top-8 w-14 h-14 rounded-full border-2 border-dashed border-sky-600/70 flex flex-col items-center justify-center text-[8px] font-bold text-sky-800 rotate-[-15deg] pointer-events-none">
+                <span>01 NOV</span>
+                <span class="text-[7px]">BHARTIYA CITY</span>
+                <span>PARTY</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- CENTER: Barbie & Ken Typography -->
+          <div class="relative z-10 text-center my-auto py-1">
+            <div class="flex items-center justify-center gap-2 mb-1">
+              <span class="text-xs font-chunky uppercase text-ken bg-sky-100 px-3 py-0.5 rounded-full border border-sky-300">
+                🏄‍♂️ Ken Fun
+              </span>
+              <span class="text-xs font-chunky uppercase text-pink-600 bg-pink-100 px-3 py-0.5 rounded-full border border-pink-300">
+                💖 Barbie Glam
+              </span>
+            </div>
+            <h1 class="font-barbie text-4xl sm:text-6xl text-barbie drop-shadow tracking-wider leading-tight">
+              Aarzoo
+            </h1>
+            <p class="font-chunky text-base sm:text-lg text-amber-500 uppercase tracking-widest">
+              Is Turning <span class="text-2xl sm:text-3xl text-pink-500 font-extrabold underline decoration-wavy decoration-yellow-400">5!</span>
+            </p>
+          </div>
+
+          <!-- BOTTOM: Golden Wax Seal & Quick Skip to RSVP on Envelope -->
+          <div class="relative z-20 flex flex-col items-center justify-center">
+            <button id="openEnvelopeBtn" aria-label="Open Invitation Envelope" class="relative group cursor-pointer focus:outline-none">
+              <div class="absolute -inset-2 bg-gradient-to-r from-pink-500 via-yellow-400 to-sky-400 rounded-full blur-md opacity-80 group-hover:opacity-100 animate-pulse transition"></div>
+              
+              <div class="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full gold-foil border-4 border-yellow-200 shadow-wax flex flex-col items-center justify-center text-amber-950 transition transform group-hover:scale-110 active:scale-95">
+                <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full border-2 border-dashed border-amber-700/40 flex flex-col items-center justify-center text-center">
+                  <span class="font-barbie text-xl sm:text-2xl font-bold leading-none text-amber-900 drop-shadow">A</span>
+                  <span class="font-chunky text-xs sm:text-sm font-extrabold text-amber-950 -mt-1">★ 5 ★</span>
+                </div>
+              </div>
+            </button>
+
+            <!-- Action Prompts -->
+            <div class="mt-2 flex items-center gap-2">
+              <span class="flex items-center gap-1.5 bg-yellow-400 text-purple-950 text-xs sm:text-sm font-chunky px-4 py-1.5 rounded-full shadow-lg border border-white animate-bounce">
+                <i class="ph-fill ph-lock-key-open"></i>
+                <span>TAP SEAL TO OPEN!</span>
+              </span>
+              <button onclick="event.stopPropagation(); triggerEnvelopeOpen(); scrollToSection('rsvpSection');" class="bg-white/90 hover:bg-white text-gray-800 text-xs font-chunky px-3 py-1.5 rounded-full shadow border border-pink-200 transition active:scale-95 cursor-pointer">
+                ⚡ Skip to RSVP
+              </button>
+            </div>
+          </div>
+
+          <!-- Envelope Top Flap (Animated) -->
+          <div id="envelopeFlap" class="envelope-flap absolute top-0 left-0 right-0 h-36 bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-500 shadow-xl border-b-4 border-yellow-200 z-30 flex items-start justify-center pt-3 pointer-events-none" style="clip-path: polygon(0 0, 100% 0, 50% 100%);">
+            <span class="font-chunky text-[11px] uppercase tracking-widest text-amber-900 drop-shadow-sm">★ Barbie & Ken Dream Party ★</span>
+          </div>
+
+          <!-- Inside Letter Peek -->
+          <div id="innerLetterPeek" class="absolute inset-x-6 top-8 bottom-8 bg-white rounded-2xl border-4 border-barbie shadow-2xl z-15 flex flex-col items-center justify-center p-6 text-center transform scale-90 opacity-0 pointer-events-none transition-all">
+            <span class="font-barbie text-4xl text-barbie">You're Invited!</span>
+            <p class="font-chunky text-ken text-sm mt-2">Opening Aarzoo's Magical Celebration...</p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 2. MAIN INVITATION CONTENT                                                -->
+  <!-- ========================================================================= -->
+  <main id="mainInvitation" class="relative z-10 max-w-4xl mx-auto px-4 py-6 sm:py-10 flex flex-col items-center gap-8 transition-opacity duration-700">
+    
+    <!-- HERO HEADER -->
+    <header class="w-full text-center relative pt-2">
+      <div class="flex items-center justify-center gap-2 mb-3 flex-wrap">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs sm:text-sm font-chunky uppercase tracking-wider bg-gradient-to-r from-pink-500 to-barbie text-white shadow-md">
+          <i class="ph-fill ph-heart"></i> Barbie & Ken Theme
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs sm:text-sm font-chunky uppercase tracking-wider bg-gradient-to-r from-sky-500 to-ken text-white shadow-md">
+          <i class="ph-fill ph-sparkle"></i> Fun for Boys & Girls!
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs sm:text-sm font-chunky uppercase tracking-wider bg-amber-400 text-amber-950 shadow-md">
+          <i class="ph-fill ph-crown"></i> Turning 5!
+        </span>
+      </div>
+
+      <h1 class="font-barbie text-5xl sm:text-7xl md:text-8xl text-barbie drop-shadow tracking-wider">
+        Aarzoo
+      </h1>
+
+      <div class="relative inline-flex items-center justify-center gap-2 sm:gap-3 mt-1">
+        <span class="font-chunky text-2xl sm:text-4xl text-ken font-extrabold">IS TURNING</span>
+        <div class="relative inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 gold-foil rounded-2xl shadow-glow-gold transform rotate-6 border-2 border-white">
+          <span class="font-chunky text-3xl sm:text-4xl text-amber-950">5!</span>
+        </div>
+      </div>
+
+      <p class="text-base sm:text-xl text-gray-700 font-bold max-w-2xl mx-auto mt-3 leading-snug">
+        Get ready for non-stop action! Active play area climbs, slides, games, Pizza Hut treats & pure celebration! 🍕✨
+      </p>
+
+      <!-- HERO BUTTONS ROW -->
+      <div class="mt-5 flex items-center justify-center gap-3 flex-wrap">
+        <button onclick="scrollToSection('rsvpSection')" class="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-500 hover:to-yellow-500 text-amber-950 font-chunky text-sm sm:text-base shadow-xl border-2 border-white transition transform hover:scale-105 active:scale-95 cursor-pointer">
+          <i class="ph-fill ph-lightning text-xl text-amber-900"></i>
+          <span>⚡ Skip to RSVP Now</span>
+        </button>
+        <button onclick="scrollToSection('quizSection')" class="inline-flex items-center gap-2 px-4 py-3 rounded-2xl bg-white hover:bg-sky-50 text-ken font-chunky text-sm sm:text-base border-2 border-sky-300 shadow-md transition transform hover:scale-105 active:scale-95 cursor-pointer">
+          <i class="ph-bold ph-game-controller text-xl"></i>
+          <span>Play 5-Question Quiz</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ========================================================================= -->
+    <!-- 3. EVENT DETAILS & SCHEDULE CARDS                                         -->
+    <!-- ========================================================================= -->
+    <section id="heroDetailsSection" class="w-full">
+      <div class="relative bg-white/95 backdrop-blur-md rounded-3xl p-5 sm:p-8 shadow-2xl border-4 border-yellow-300 overflow-hidden">
+        
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative z-10">
+          
+          <!-- LEFT: Barbie Doll Box Frame Starring Aarzoo -->
+          <div class="md:col-span-5 flex justify-center">
+            <div class="relative w-full max-w-xs">
+              <div class="relative rounded-3xl bg-gradient-to-b from-barbie via-pink-500 to-pink-600 p-3 shadow-2xl border-4 border-yellow-300">
+                
+                <div class="flex items-center justify-between px-2 pb-2 text-white">
+                  <span class="font-barbie text-xl sm:text-2xl drop-shadow">Barbie</span>
+                  <span class="text-[10px] font-chunky uppercase tracking-widest bg-white/20 px-2 py-0.5 rounded-md border border-white/40">Collector Edition</span>
+                  <span class="font-chunky text-sm text-sky-200 drop-shadow">& Ken</span>
+                </div>
+
+                <div class="relative rounded-2xl overflow-hidden border-2 border-white/60 bg-gradient-to-t from-pink-100 to-white aspect-[3/4] flex items-center justify-center">
+                  <img src="image_10.png" alt="Aarzoo Princess Barbie" class="w-full h-full object-cover object-top" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                  <div class="hidden w-full h-full items-center justify-center bg-gradient-to-tr from-pink-500 via-purple-600 to-sky-500 p-4 text-white text-center">
+                    <div>
+                      <span class="text-5xl">👑</span>
+                      <h4 class="font-barbie text-2xl text-yellow-300 mt-2">Princess Aarzoo</h4>
+                      <p class="text-xs font-chunky text-pink-100 uppercase tracking-widest mt-1">Barbie Birthday Doll</p>
+                    </div>
+                  </div>
+
+                  <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-purple-950/90 via-purple-900/60 to-transparent p-3 text-center pointer-events-none">
+                    <p class="font-barbie text-yellow-300 text-xl drop-shadow">Birthday Star Aarzoo</p>
+                    <p class="text-[11px] font-chunky text-pink-200 tracking-wider uppercase">Turning 5 & Ready to Party!</p>
+                  </div>
+
+                  <div class="absolute top-3 right-3 w-10 h-10 rounded-full gold-foil shadow-lg flex items-center justify-center text-amber-950 text-xs font-chunky rotate-12 pointer-events-none">
+                    5 YRS!
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-around pt-2 text-[10px] font-chunky text-white uppercase tracking-wider">
+                  <span>👑 Tiara Magic</span>
+                  <span>•</span>
+                  <span>🍕 Pizza Lover</span>
+                  <span>•</span>
+                  <span>🪂 Zipline Star</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Date, Venue, Mandatory Socks & Schedule -->
+          <div class="md:col-span-7 flex flex-col justify-center space-y-4 text-left">
+            
+            <div class="border-b-2 border-pink-100 pb-2">
+              <span class="text-xs font-chunky uppercase tracking-widest text-pink-600 bg-pink-100 px-3 py-1 rounded-full">Event Details</span>
+              <h2 class="font-chunky text-2xl sm:text-3xl text-gray-900 mt-2">
+                Join the Celebration! 🎉
+              </h2>
+            </div>
+
+            <!-- Date & Time -->
+            <div class="bg-gradient-to-r from-pink-50 to-white rounded-2xl p-4 border-2 border-pink-200 shadow-sm flex items-start gap-4">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-barbie to-pink-400 text-white flex items-center justify-center text-2xl shrink-0 shadow-md">
+                <i class="ph-duotone ph-calendar-star"></i>
+              </div>
+              <div>
+                <span class="text-xs font-chunky text-pink-600 uppercase tracking-wider">Date & Time</span>
+                <h3 class="font-chunky font-bold text-lg sm:text-xl text-gray-800">Sunday, 1st November</h3>
+                <p class="text-xs sm:text-sm font-bold text-barbie">11:30 AM Onwards</p>
+              </div>
+            </div>
+
+            <!-- Venue -->
+            <div class="bg-gradient-to-r from-sky-50 to-white rounded-2xl p-4 border-2 border-sky-200 shadow-sm flex items-start gap-4">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-ken to-sky-400 text-white flex items-center justify-center text-2xl shrink-0 shadow-md">
+                <i class="ph-duotone ph-map-pin"></i>
+              </div>
+              <div class="flex-1">
+                <span class="text-xs font-chunky text-ken uppercase tracking-wider">Venue</span>
+                <h3 class="font-chunky font-bold text-lg sm:text-xl text-gray-800">Bhartiya City</h3>
+                <p class="text-xs sm:text-sm text-gray-600 font-semibold">2nd Floor Play Area + Snacks at Pizza Hut, Bengaluru</p>
+              </div>
+            </div>
+
+            <!-- Schedule Breakdown -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="p-3.5 rounded-2xl bg-pink-50/70 border border-pink-200">
+                <span class="text-xs font-chunky text-pink-700 block">⏰ 11:30 AM – 1:00 PM</span>
+                <p class="text-xs font-bold text-gray-800 mt-0.5">Fun Time at 2nd Floor Play Area</p>
+                <p class="text-[11px] text-gray-600">Active climbing, slides, ball pools & games!</p>
+              </div>
+              <div class="p-3.5 rounded-2xl bg-sky-50/70 border border-sky-200">
+                <span class="text-xs font-chunky text-ken block">⏰ 1:00 PM Onwards</span>
+                <p class="text-xs font-bold text-gray-800 mt-0.5">Snacks at Pizza Hut</p>
+                <p class="text-[11px] text-gray-600">Hot cheesy pizzas, beverages & celebration!</p>
+              </div>
+            </div>
+
+            <!-- CRITICAL REMINDER: SOCKS ARE MANDATORY -->
+            <div class="bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 rounded-2xl p-4 shadow-lg border-2 border-amber-500 flex items-center gap-3.5">
+              <span class="text-3xl sm:text-4xl">🧦</span>
+              <div>
+                <h4 class="font-chunky font-extrabold text-amber-950 text-base sm:text-lg uppercase tracking-wide">
+                  IMPORTANT REMINDER!
+                </h4>
+                <p class="text-xs sm:text-sm font-bold text-amber-900 leading-tight">
+                  <span class="underline decoration-pink-600 decoration-2">SOCKS ARE MANDATORY</span> for everyone entering the 2nd Floor Play Area!
+                </p>
+              </div>
+            </div>
+
+            <!-- Actions: Google Maps & Add to Calendar -->
+            <div class="grid grid-cols-2 gap-3 pt-1">
+              <a href="https://maps.google.com/?cid=13669737955212029702" target="_blank" rel="noopener noreferrer" onclick="playTone('tap')" class="inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-ken hover:bg-sky-700 text-white font-chunky text-xs sm:text-sm shadow-md transition transform active:scale-95">
+                <i class="ph-bold ph-navigation-arrow text-lg"></i>
+                <span>Get Directions</span>
+              </a>
+              <button onclick="downloadCalendarInvite()" class="inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-chunky text-xs sm:text-sm shadow-md transition transform active:scale-95 cursor-pointer">
+                <i class="ph-bold ph-calendar-plus text-lg"></i>
+                <span>Add to Calendar</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 4. AARZOO PHOTO SHOWCASE                                                  -->
+    <!-- ========================================================================= -->
+    <section id="photoGallerySection" class="w-full bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-amber-300">
+      <div class="text-center mb-6">
+        <span class="text-xs font-chunky uppercase tracking-widest text-amber-700 bg-amber-100 px-3 py-1 rounded-full">Photo Album</span>
+        <h2 class="font-chunky text-2xl sm:text-3xl text-gray-800 mt-2">Aarzoo's Joyful World ✨</h2>
+        <p class="text-sm text-gray-500">Tap arrows to browse through Aarzoo's favorite memories!</p>
+      </div>
+
+      <!-- Main Photo Slider -->
+      <div class="relative max-w-md mx-auto">
+        <div id="photoCarousel" class="relative rounded-3xl overflow-hidden border-4 border-yellow-300 shadow-2xl bg-gradient-to-br from-pink-900 via-purple-900 to-sky-950 aspect-[4/5] flex items-center justify-center">
+          
+          <!-- Slide 1: Princess Crown (image_10.png) -->
+          <div class="photo-slide absolute inset-0 transition-opacity duration-500 opacity-100 flex items-center justify-center" data-title="Birthday Queen Aarzoo 👑" data-desc="Sparkling tiara, magical wand and pure elegance!">
+            <img src="image_10.png" alt="Aarzoo Princess Crown" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="hidden w-full h-full items-center justify-center bg-gradient-to-tr from-pink-500 to-purple-600 text-white p-6 text-center">
+              <div>
+                <span class="text-6xl">👑</span>
+                <h4 class="font-barbie text-3xl text-yellow-300 mt-3">Princess Aarzoo</h4>
+                <p class="text-xs font-chunky text-pink-100 mt-1">Turning 5 with Grace & Glamour!</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 2: Zipline (image.png) -->
+          <div class="photo-slide absolute inset-0 transition-opacity duration-500 opacity-0 pointer-events-none flex items-center justify-center" data-title="Fearless Adventurer Aarzoo! 🪂" data-desc="Flying high on the zipline without fear!">
+            <img src="image.png" alt="Aarzoo Ziplining" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="hidden w-full h-full items-center justify-center bg-gradient-to-tr from-sky-500 to-blue-700 text-white p-6 text-center">
+              <div>
+                <span class="text-6xl">🪂</span>
+                <h4 class="font-chunky text-2xl text-yellow-300 mt-3">Zipline Daredevil Aarzoo</h4>
+                <p class="text-xs font-chunky text-sky-100 mt-1">Flying High & Living the Adventure!</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 3: Tea Gardens (image_2.png) -->
+          <div class="photo-slide absolute inset-0 transition-opacity duration-500 opacity-0 pointer-events-none flex items-center justify-center" data-title="Lush Tea Gardens 🍃" data-desc="Charming smiles amidst green nature & misty hills!">
+            <img src="image_2.png" alt="Aarzoo in Tea Gardens" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="hidden w-full h-full items-center justify-center bg-gradient-to-tr from-emerald-500 to-teal-700 text-white p-6 text-center">
+              <div>
+                <span class="text-6xl">🍃</span>
+                <h4 class="font-chunky text-2xl text-yellow-300 mt-3">Tea Garden Trails with Aarzoo</h4>
+                <p class="text-xs font-chunky text-emerald-100 mt-1">Sweet smiles among emerald hills!</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 4: Bead Craft (image_3.png) -->
+          <div class="photo-slide absolute inset-0 transition-opacity duration-500 opacity-0 pointer-events-none flex items-center justify-center" data-title="Creative & Crafty Aarzoo 💖" data-desc="Showing off colorful handmade bead bracelets & charms!">
+            <img src="image_3.png" alt="Aarzoo Crafts" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="hidden w-full h-full items-center justify-center bg-gradient-to-tr from-pink-400 to-rose-600 text-white p-6 text-center">
+              <div>
+                <span class="text-6xl">📿</span>
+                <h4 class="font-chunky text-2xl text-yellow-300 mt-3">Beaded Charms & Crafts</h4>
+                <p class="text-xs font-chunky text-pink-100 mt-1">Creativity and colorful sparkles with Aarzoo!</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 5: Waterfalls (image_4.png) -->
+          <div class="photo-slide absolute inset-0 transition-opacity duration-500 opacity-0 pointer-events-none flex items-center justify-center" data-title="Waterfall Wonders 🌺" data-desc="Stylish in floral dress and sun hat by the cascades!">
+            <img src="image_4.png" alt="Aarzoo Waterfalls" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="hidden w-full h-full items-center justify-center bg-gradient-to-tr from-cyan-500 to-blue-600 text-white p-6 text-center">
+              <div>
+                <span class="text-6xl">🌺</span>
+                <h4 class="font-chunky text-2xl text-yellow-300 mt-3">Waterfall Wonders with Aarzoo</h4>
+                <p class="text-xs font-chunky text-cyan-100 mt-1">Floral dresses & refreshing breezes!</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 6: Poolside (image_5.png) -->
+          <div class="photo-slide absolute inset-0 transition-opacity duration-500 opacity-0 pointer-events-none flex items-center justify-center" data-title="Sunshine & Pool Vibes ☀️" data-desc="Sunny yellow dress and white hat for pool fun!">
+            <img src="image_5.png" alt="Aarzoo Pool" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="hidden w-full h-full items-center justify-center bg-gradient-to-tr from-amber-400 to-orange-500 text-white p-6 text-center">
+              <div>
+                <span class="text-6xl">☀️</span>
+                <h4 class="font-chunky text-2xl text-yellow-100 mt-3">Sunshine & Poolside with Aarzoo</h4>
+                <p class="text-xs font-chunky text-amber-100 mt-1">Sunny yellow days and laughter!</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 7: Beach Balloon (image_6.png) -->
+          <div class="photo-slide absolute inset-0 transition-opacity duration-500 opacity-0 pointer-events-none flex items-center justify-center" data-title="Beach & Big Balloons 🎈" data-desc="Seaside breeze and giant purple balloons!">
+            <img src="image_6.png" alt="Aarzoo Beach Balloon" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="hidden w-full h-full items-center justify-center bg-gradient-to-tr from-pink-500 to-rose-600 text-white p-6 text-center">
+              <div>
+                <span class="text-6xl">🎈</span>
+                <h4 class="font-chunky text-2xl text-yellow-300 mt-3">Beach Day Joy with Aarzoo</h4>
+                <p class="text-xs font-chunky text-pink-100 mt-1">Sea breeze and giant balloon hugs!</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 8: Lawn Badminton (image_9.png) -->
+          <div class="photo-slide absolute inset-0 transition-opacity duration-500 opacity-0 pointer-events-none flex items-center justify-center" data-title="Sports & Badminton! 🏸" data-desc="Laughing freely on the grass after playing badminton!">
+            <img src="image_9.png" alt="Aarzoo Badminton" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="hidden w-full h-full items-center justify-center bg-gradient-to-tr from-green-500 to-emerald-700 text-white p-6 text-center">
+              <div>
+                <span class="text-6xl">🏸</span>
+                <h4 class="font-chunky text-2xl text-yellow-300 mt-3">Active Sports Champ Aarzoo</h4>
+                <p class="text-xs font-chunky text-green-100 mt-1">Badminton fun and lawn smiles!</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Caption Overlay -->
+          <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-gray-950 via-gray-900/70 to-transparent p-5 text-center z-20">
+            <h4 id="slideTitle" class="text-yellow-300 font-chunky text-lg sm:text-xl drop-shadow">Birthday Queen Aarzoo 👑</h4>
+            <p id="slideDesc" class="text-white text-xs sm:text-sm font-medium drop-shadow mt-0.5">Sparkling tiara, magical wand and pure elegance!</p>
+          </div>
+        </div>
+
+        <!-- Carousel Buttons -->
+        <button id="prevSlide" aria-label="Previous Photo" class="absolute -left-3 sm:-left-5 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white hover:bg-pink-100 text-barbie shadow-xl flex items-center justify-center font-bold text-2xl active:scale-95 transition z-30 border-2 border-pink-300 cursor-pointer">
+          <i class="ph-bold ph-caret-left"></i>
+        </button>
+        <button id="nextSlide" aria-label="Next Photo" class="absolute -right-3 sm:-right-5 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white hover:bg-sky-100 text-ken shadow-xl flex items-center justify-center font-bold text-2xl active:scale-95 transition z-30 border-2 border-sky-300 cursor-pointer">
+          <i class="ph-bold ph-caret-right"></i>
+        </button>
+
+        <!-- Thumb Dots -->
+        <div id="slideDots" class="flex justify-center gap-1.5 mt-4 flex-wrap px-4"></div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 5. 5-QUESTION QUIZ: "HOW WELL DO YOU KNOW AARZOO?"                        -->
+    <!-- ========================================================================= -->
+    <section id="quizSection" class="w-full bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-barbie-deep relative">
+      <div class="text-center mb-6">
+        <span class="text-xs font-chunky uppercase tracking-widest text-barbie bg-pink-100 px-3 py-1 rounded-full">
+          Fun Trivia Challenge
+        </span>
+        <h2 class="font-chunky text-2xl sm:text-3xl text-gray-800 mt-2">
+          How Well Do You Know Aarzoo? 🎯
+        </h2>
+        <p class="text-sm text-gray-500 max-w-md mx-auto">
+          Take this mini 5-question quiz! Your score will be included in your WhatsApp RSVP.
+        </p>
+      </div>
+
+      <!-- Quiz Box -->
+      <div id="quizContainer" class="max-w-lg mx-auto bg-gradient-to-br from-pink-50 via-white to-sky-50 rounded-2xl p-5 sm:p-6 border-2 border-pink-200 shadow-inner">
+        
+        <div class="flex items-center justify-between mb-4">
+          <span id="quizCounterText" class="text-xs font-chunky text-barbie bg-pink-200/80 px-3 py-1 rounded-full">
+            Question 1 of 5
+          </span>
+          <span id="quizScoreText" class="text-xs font-chunky text-amber-900 bg-amber-100 px-3 py-1 rounded-full border border-amber-300 flex items-center gap-1">
+            <i class="ph-fill ph-star text-amber-500"></i> Score: 0/5
+          </span>
+        </div>
+
+        <h3 id="quizQuestionPrompt" class="font-chunky text-lg sm:text-xl text-gray-800 mb-4 leading-snug">
+          Loading Question...
+        </h3>
+
+        <div id="quizOptionsList" class="space-y-3"></div>
+
+        <div id="quizFeedbackBox" class="hidden mt-4 p-3 rounded-xl text-xs sm:text-sm font-chunky text-center"></div>
+
+        <button id="nextQuizBtn" class="hidden mt-4 w-full py-3.5 rounded-xl bg-gradient-to-r from-barbie to-pink-500 hover:from-pink-600 hover:to-barbie text-white font-chunky text-sm shadow-md transition transform active:scale-95 cursor-pointer">
+          Next Question <i class="ph-bold ph-arrow-right ml-1"></i>
+        </button>
+      </div>
+
+      <!-- Quiz Result Card (Shown after Q5) -->
+      <div id="quizResultCard" class="hidden max-w-lg mx-auto text-center py-6 px-4 space-y-4">
+        <div class="text-6xl animate-bounce">🏆</div>
+        <h3 class="font-chunky text-2xl sm:text-3xl text-gray-800">
+          Superstar Trivia Score!
+        </h3>
+        <p class="text-base text-gray-600">
+          You scored <strong id="finalScoreVal" class="text-barbie text-2xl font-chunky">5/5</strong> on Aarzoo's favorites!
+        </p>
+        <p class="text-xs sm:text-sm text-gray-500">
+          Your score has been attached to your RSVP below! 💖
+        </p>
+        <button onclick="resetQuiz()" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-chunky transition cursor-pointer">
+          <i class="ph-bold ph-arrows-counter-clockwise"></i> Retake Trivia
+        </button>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 6. STREAMLINED WHATSAPP RSVP SECTION                                      -->
+    <!-- ========================================================================= -->
+    <section id="rsvpSection" class="w-full bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-2xl border-4 border-yellow-300">
+      <div class="text-center mb-6">
+        <span class="text-xs font-chunky uppercase tracking-widest text-amber-800 bg-amber-100 px-3 py-1 rounded-full">
+          RSVP Form
+        </span>
+        <h2 class="font-chunky text-2xl sm:text-3xl text-gray-800 mt-2">
+          Confirm Your RSVP on WhatsApp 💌
+        </h2>
+        <p class="text-sm text-gray-500">
+          Sends your reply directly to Aarzoo's parents at <span class="font-bold text-gray-800">9971289329</span>
+        </p>
+      </div>
+
+      <form id="rsvpForm" class="max-w-lg mx-auto space-y-5" onsubmit="submitWhatsAppRsvp(event)">
+        
+        <!-- Name Input -->
+        <div>
+          <label for="rsvpName" class="block text-xs font-chunky uppercase tracking-wider text-gray-600 mb-1.5">
+            Your Name / Family Name *
+          </label>
+          <input 
+            type="text" 
+            id="rsvpName" 
+            required 
+            placeholder="e.g., Vibha or The Sharma Family" 
+            class="w-full px-4 py-3 rounded-xl border-2 border-pink-200 focus:border-barbie focus:ring-2 focus:ring-pink-200 outline-none text-sm transition"
+          >
+        </div>
+
+        <!-- Attending Status Buttons -->
+        <div>
+          <label class="block text-xs font-chunky uppercase tracking-wider text-gray-600 mb-2">
+            Will You Be Attending? *
+          </label>
+          <div class="grid grid-cols-2 gap-3">
+            <button 
+              type="button" 
+              id="btnAttendingYes" 
+              onclick="setAttendanceStatus(true)"
+              class="py-3 px-3 rounded-2xl font-chunky text-xs sm:text-sm border-2 border-barbie bg-gradient-to-r from-barbie to-pink-500 text-white shadow-md flex items-center justify-center gap-1.5 transition transform active:scale-95 cursor-pointer"
+            >
+              <i class="ph-bold ph-check-circle text-lg"></i> Yes, Joyfully! 🎉
+            </button>
+            <button 
+              type="button" 
+              id="btnAttendingNo" 
+              onclick="setAttendanceStatus(false)"
+              class="py-3 px-3 rounded-2xl font-chunky text-xs sm:text-sm border-2 border-gray-200 bg-gray-50 text-gray-500 hover:bg-gray-100 flex items-center justify-center gap-1.5 transition transform active:scale-95 cursor-pointer"
+            >
+              <i class="ph-bold ph-x-circle text-lg"></i> Sorry, Can't Make It 💌
+            </button>
+          </div>
+        </div>
+
+        <!-- Kids & Adults Stepper Counters (Only shown when attending) -->
+        <div id="headcountContainer" class="bg-gradient-to-br from-pink-50 to-sky-50 rounded-2xl p-4 border-2 border-pink-200 space-y-4">
+          
+          <!-- Kids Counter -->
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="font-chunky text-gray-800 text-sm">Number of Kids 👧👦</p>
+              <p class="text-xs text-barbie font-bold">For 2nd Floor Play Area!</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="modifyGuestCount('kids', -1)" class="w-10 h-10 rounded-xl bg-white border-2 border-pink-300 text-barbie font-chunky text-lg hover:bg-pink-100 active:scale-95 transition flex items-center justify-center cursor-pointer">-</button>
+              <span id="kidsCountVal" class="font-chunky text-lg w-8 text-center text-gray-800">1</span>
+              <button type="button" onclick="modifyGuestCount('kids', 1)" class="w-10 h-10 rounded-xl bg-barbie text-white font-chunky text-lg hover:bg-pink-600 active:scale-95 transition flex items-center justify-center cursor-pointer">+</button>
+            </div>
+          </div>
+
+          <!-- Adults Counter -->
+          <div class="flex items-center justify-between border-t border-pink-200/60 pt-3">
+            <div>
+              <p class="font-chunky text-gray-800 text-sm">Number of Adults 👩👨</p>
+              <p class="text-xs text-ken font-bold">Pizza Hut snacks & celebration!</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="modifyGuestCount('adults', -1)" class="w-10 h-10 rounded-xl bg-white border-2 border-sky-300 text-ken font-chunky text-lg hover:bg-sky-100 active:scale-95 transition flex items-center justify-center cursor-pointer">-</button>
+              <span id="adultsCountVal" class="font-chunky text-lg w-8 text-center text-gray-800">1</span>
+              <button type="button" onclick="modifyGuestCount('adults', 1)" class="w-10 h-10 rounded-xl bg-ken text-white font-chunky text-lg hover:bg-sky-700 active:scale-95 transition flex items-center justify-center cursor-pointer">+</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit to WhatsApp Button -->
+        <button 
+          type="submit" 
+          class="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-chunky text-base sm:text-lg shadow-xl hover:shadow-glow-pink transition transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <i class="ph-bold ph-whatsapp-logo text-2xl"></i>
+          <span>Send RSVP on WhatsApp</span>
+        </button>
+
+        <p class="text-center text-xs text-gray-400 font-medium">
+          Sends directly to: <span class="font-bold text-gray-600">+91 9971289329</span>
+        </p>
+      </form>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="text-center py-6 text-gray-500 text-xs space-y-1">
+      <p class="font-barbie text-2xl text-barbie">Aarzoo's 5th Birthday Celebration 💖</p>
+      <p class="font-chunky text-gray-600">Bhartiya City, Bengaluru • Sunday, 1st November • 11:30 AM</p>
+      <p class="text-gray-400">Can't wait to see you there! 🧦🍕🎉</p>
+    </footer>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- 7. SCRIPT LOGIC (AUDIO SFX, ENVELOPE, QUIZ, RSVP)                         -->
+  <!-- ========================================================================= -->
+  <script>
+    /* ----------------------------------------------------
+       A. INTERACTIVE AUDIO SFX SYNTHESIZER (NO MUSIC LOOP)
+    ---------------------------------------------------- */
+    let audioCtx = null;
+    let sfxEnabled = true;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtx = new AudioContextClass();
+        }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function toggleSoundFx() {
+      sfxEnabled = !sfxEnabled;
+      const icon = document.getElementById('sfxIcon');
+      const label = document.getElementById('sfxLabel');
+      if (sfxEnabled) {
+        icon.className = 'ph-bold ph-speaker-high text-base';
+        if (label) label.textContent = 'SFX On';
+        playTone('tap');
+      } else {
+        icon.className = 'ph-bold ph-speaker-slash text-base text-gray-400';
+        if (label) label.textContent = 'Muted';
+      }
+    }
+
+    function playTone(type) {
+      if (!sfxEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+
+        if (type === 'tap') {
+          // Subtle, snappy tactile pop
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(480, now);
+          osc.frequency.exponentialRampToValueAtTime(750, now + 0.05);
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.06);
+
+        } else if (type === 'unseal') {
+          // Joyful golden chime arpeggio on opening envelope
+          const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51]; // C5, E5, G5, C6, E6
+          notes.forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+            gain.gain.setValueAtTime(0, now + idx * 0.08);
+            gain.gain.linearRampToValueAtTime(0.22, now + idx * 0.08 + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.45);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.08);
+            osc.stop(now + idx * 0.08 + 0.46);
+          });
+
+        } else if (type === 'correct') {
+          // Triumph shimmer chime
+          [880, 1108.73, 1318.51, 1760].forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+            gain.gain.setValueAtTime(0.2, now + idx * 0.06);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.35);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.06);
+            osc.stop(now + idx * 0.06 + 0.36);
+          });
+
+        } else if (type === 'wrong') {
+          // Gentle, friendly low boop
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(260, now);
+          osc.frequency.linearRampToValueAtTime(190, now + 0.18);
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.21);
+        }
+      } catch (err) {
+        console.warn("Audio SFX notice:", err);
+      }
+    }
+
+    /* ----------------------------------------------------
+       B. FLOATING RSVP BUTTON VISIBILITY ON SCROLL
+    ---------------------------------------------------- */
+    window.addEventListener('scroll', () => {
+      const pill = document.getElementById('floatingRsvpPill');
+      if (window.scrollY > 350) {
+        pill.classList.remove('translate-y-24', 'opacity-0');
+        pill.classList.add('translate-y-0', 'opacity-100');
+      } else {
+        pill.classList.remove('translate-y-0', 'opacity-100');
+        pill.classList.add('translate-y-24', 'opacity-0');
+      }
+    });
+
+    /* ----------------------------------------------------
+       C. 3D ENVELOPE OPENING LOGIC
+    ---------------------------------------------------- */
+    const openEnvelopeBtn = document.getElementById('openEnvelopeBtn');
+    const envelopeFlap = document.getElementById('envelopeFlap');
+    const envelopeOverlay = document.getElementById('envelopeOverlay');
+    const envelopeCard = document.getElementById('envelopeCard');
+    const innerLetterPeek = document.getElementById('innerLetterPeek');
+
+    function triggerEnvelopeOpen() {
+      playTone('unseal');
+
+      envelopeFlap.classList.add('flap-open');
+      innerLetterPeek.classList.remove('opacity-0', 'pointer-events-none');
+      innerLetterPeek.classList.add('card-slide-out');
+
+      confetti({
+        particleCount: 120,
+        spread: 100,
+        origin: { y: 0.6 },
+        colors: ['#FF1493', '#00AEEF', '#F59E0B', '#FF69B4', '#FCD34D', '#38BDF8']
+      });
+
+      setTimeout(() => {
+        envelopeOverlay.classList.add('opacity-0', 'pointer-events-none');
+        setTimeout(() => {
+          envelopeOverlay.style.display = 'none';
+        }, 700);
+      }, 1100);
+    }
+
+    openEnvelopeBtn.addEventListener('click', triggerEnvelopeOpen);
+    envelopeCard.addEventListener('click', (e) => {
+      if (e.target.tagName !== 'BUTTON') {
+        triggerEnvelopeOpen();
+      }
+    });
+
+    /* ----------------------------------------------------
+       D. GLITTER SPARKLES CANVAS
+    ---------------------------------------------------- */
+    const canvas = document.getElementById('sparkleCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function setupCanvasSize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', setupCanvasSize);
+    setupCanvasSize();
+
+    class SparkleParticle {
+      constructor() {
+        this.init();
+      }
+      init() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2.8 + 1;
+        this.speedY = -(Math.random() * 0.6 + 0.3);
+        this.speedX = (Math.random() - 0.5) * 0.4;
+        this.alpha = Math.random() * 0.7 + 0.3;
+        this.color = Math.random() > 0.5 ? '#FF69B4' : (Math.random() > 0.5 ? '#FBBF24' : '#38BDF8');
+      }
+      update() {
+        this.y += this.speedY;
+        this.x += this.speedX;
+        if (this.y < -10) this.init();
+      }
+      draw() {
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    for (let i = 0; i < 35; i++) {
+      particles.push(new SparkleParticle());
+    }
+
+    function renderSparkles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+      requestAnimationFrame(renderSparkles);
+    }
+    window.onload = function() {
+      renderSparkles();
+    };
+
+    /* ----------------------------------------------------
+       E. PHOTO CAROUSEL
+    ---------------------------------------------------- */
+    const photoSlides = document.querySelectorAll('.photo-slide');
+    const slideDotsContainer = document.getElementById('slideDots');
+    const slideTitle = document.getElementById('slideTitle');
+    const slideDesc = document.getElementById('slideDesc');
+    let currentSlideIdx = 0;
+
+    photoSlides.forEach((_, idx) => {
+      const dot = document.createElement('button');
+      dot.className = `h-2 rounded-full transition-all cursor-pointer ${idx === 0 ? 'bg-barbie w-6' : 'bg-gray-300 w-2'}`;
+      dot.onclick = () => {
+        playTone('tap');
+        activateSlide(idx);
+      };
+      slideDotsContainer.appendChild(dot);
+    });
+
+    function activateSlide(index) {
+      photoSlides.forEach((slide, idx) => {
+        if (idx === index) {
+          slide.classList.remove('opacity-0', 'pointer-events-none');
+          slide.classList.add('opacity-100');
+          slideTitle.textContent = slide.dataset.title;
+          slideDesc.textContent = slide.dataset.desc;
+        } else {
+          slide.classList.remove('opacity-100');
+          slide.classList.add('opacity-0', 'pointer-events-none');
+        }
+      });
+
+      Array.from(slideDotsContainer.children).forEach((dot, idx) => {
+        dot.className = `h-2 rounded-full transition-all cursor-pointer ${idx === index ? 'bg-barbie w-6' : 'bg-gray-300 w-2'}`;
+      });
+
+      currentSlideIdx = index;
+    }
+
+    document.getElementById('prevSlide').onclick = () => {
+      playTone('tap');
+      let next = currentSlideIdx - 1;
+      if (next < 0) next = photoSlides.length - 1;
+      activateSlide(next);
+    };
+
+    document.getElementById('nextSlide').onclick = () => {
+      playTone('tap');
+      let next = (currentSlideIdx + 1) % photoSlides.length;
+      activateSlide(next);
+    };
+
+    /* ----------------------------------------------------
+       F. 5-QUESTION QUIZ ABOUT AARZOO
+    ---------------------------------------------------- */
+    const quizItems = [
+      {
+        question: "1. What thrilling outdoor adventure has Aarzoo fearlessly enjoyed?",
+        options: [
+          { label: "Flying high on the Zipline! 🪂🧗‍♀️", isCorrect: true },
+          { label: "Deep-sea scuba diving 🤿", isCorrect: false },
+          { label: "Sitting silently indoors 🛋️", isCorrect: false }
+        ]
+      },
+      {
+        question: "2. Which magical dress-up accessory does Aarzoo love styling most?",
+        options: [
+          { label: "Princess Tiara & Wand! 👑✨", isCorrect: true },
+          { label: "Construction worker helmet 👷", isCorrect: false },
+          { label: "Chef's apron and hat 👩‍🍳", isCorrect: false }
+        ]
+      },
+      {
+        question: "3. After fun games and climbing, what yummy snack treat does Aarzoo enjoy?",
+        options: [
+          { label: "Pizza Hut Cheesy Slices! 🍕", isCorrect: true },
+          { label: "Raw broccoli salad 🥦", isCorrect: false },
+          { label: "Bitter herbal tea 🍵", isCorrect: false }
+        ]
+      },
+      {
+        question: "4. Who are the coolest playful duo celebrating Aarzoo's 5th birthday?",
+        options: [
+          { label: "Barbie & Ken! 💃🕺💖", isCorrect: true },
+          { label: "Grumpy dragons 🐉", isCorrect: false },
+          { label: "Spooky ghosts 👻", isCorrect: false }
+        ]
+      },
+      {
+        question: "5. How old is Aarzoo turning on Sunday, November 1st?",
+        options: [
+          { label: "5 Years Old! 🎂✨", isCorrect: true },
+          { label: "3 Years Old 🎈", isCorrect: false },
+          { label: "8 Years Old 🎀", isCorrect: false }
+        ]
+      }
+    ];
+
+    let currentQ = 0;
+    let triviaScore = 0;
+    let questionAnswered = false;
+    let quizCompleted = false;
+
+    const quizCounterText = document.getElementById('quizCounterText');
+    const quizScoreText = document.getElementById('quizScoreText');
+    const quizQuestionPrompt = document.getElementById('quizQuestionPrompt');
+    const quizOptionsList = document.getElementById('quizOptionsList');
+    const quizFeedbackBox = document.getElementById('quizFeedbackBox');
+    const nextQuizBtn = document.getElementById('nextQuizBtn');
+    const quizContainer = document.getElementById('quizContainer');
+    const quizResultCard = document.getElementById('quizResultCard');
+    const finalScoreVal = document.getElementById('finalScoreVal');
+
+    function displayQuestion() {
+      questionAnswered = false;
+      quizFeedbackBox.className = "hidden mt-4 p-3 rounded-xl text-xs sm:text-sm font-chunky text-center";
+      nextQuizBtn.classList.add('hidden');
+
+      const data = quizItems[currentQ];
+      quizCounterText.textContent = `Question ${currentQ + 1} of ${quizItems.length}`;
+      quizScoreText.innerHTML = `<i class="ph-fill ph-star text-amber-500"></i> Score: ${triviaScore}/${quizItems.length}`;
+      quizQuestionPrompt.textContent = data.question;
+
+      quizOptionsList.innerHTML = '';
+      data.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = "w-full text-left p-3.5 rounded-xl border-2 border-pink-200 bg-white hover:bg-pink-50 hover:border-barbie font-chunky text-xs sm:text-sm text-gray-800 transition transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-between shadow-sm cursor-pointer";
+        btn.innerHTML = `<span>${opt.label}</span> <i class="ph-bold ph-arrow-circle-right text-pink-400"></i>`;
+        
+        btn.onclick = () => handleAnswerChoice(opt.isCorrect, btn);
+        quizOptionsList.appendChild(btn);
+      });
+    }
+
+    function handleAnswerChoice(isCorrect, buttonElem) {
+      if (questionAnswered) return;
+      questionAnswered = true;
+
+      Array.from(quizOptionsList.children).forEach(b => b.disabled = true);
+
+      if (isCorrect) {
+        triviaScore++;
+        playTone('correct');
+        buttonElem.classList.add('bg-green-100', 'border-green-500', 'text-green-900');
+        quizFeedbackBox.textContent = "🎉 Correct! You know Aarzoo so well! ✨";
+        quizFeedbackBox.className = "mt-4 p-3 rounded-xl text-xs sm:text-sm font-chunky text-center bg-green-100 text-green-900 border border-green-300 block";
+        
+        confetti({
+          particleCount: 25,
+          spread: 45,
+          origin: { y: 0.7 }
+        });
+      } else {
+        playTone('wrong');
+        buttonElem.classList.add('bg-red-100', 'border-red-400', 'text-red-900');
+        quizFeedbackBox.textContent = "Oops! Good guess, but that's not Aarzoo's favorite! 😊";
+        quizFeedbackBox.className = "mt-4 p-3 rounded-xl text-xs sm:text-sm font-chunky text-center bg-red-100 text-red-900 border border-red-300 block";
+      }
+
+      quizScoreText.innerHTML = `<i class="ph-fill ph-star text-amber-500"></i> Score: ${triviaScore}/${quizItems.length}`;
+
+      if (currentQ < quizItems.length - 1) {
+        nextQuizBtn.classList.remove('hidden');
+      } else {
+        quizCompleted = true;
+        setTimeout(showFinalQuizResult, 900);
+      }
+    }
+
+    nextQuizBtn.onclick = () => {
+      playTone('tap');
+      currentQ++;
+      displayQuestion();
+    };
+
+    function showFinalQuizResult() {
+      playTone('unseal');
+      quizContainer.classList.add('hidden');
+      quizResultCard.classList.remove('hidden');
+      finalScoreVal.textContent = `${triviaScore}/5`;
+
+      confetti({
+        particleCount: 100,
+        spread: 90,
+        origin: { y: 0.6 }
+      });
+    }
+
+    function resetQuiz() {
+      playTone('tap');
+      currentQ = 0;
+      triviaScore = 0;
+      quizCompleted = false;
+      quizResultCard.classList.add('hidden');
+      quizContainer.classList.remove('hidden');
+      displayQuestion();
+    }
+
+    displayQuestion();
+
+    /* ----------------------------------------------------
+       G. STREAMLINED WHATSAPP RSVP CONTROLLER
+    ---------------------------------------------------- */
+    let isAttending = true;
+    let kidsCount = 1;
+    let adultsCount = 1;
+
+    function scrollToSection(targetId) {
+      playTone('tap');
+      if (envelopeOverlay && envelopeOverlay.style.display !== 'none') {
+        triggerEnvelopeOpen();
+      }
+      setTimeout(() => {
+        const target = document.getElementById(targetId);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (targetId === 'rsvpSection') {
+            const nameInput = document.getElementById('rsvpName');
+            if (nameInput) {
+              nameInput.focus();
+            }
+            target.classList.add('ring-8', 'ring-yellow-400');
+            setTimeout(() => target.classList.remove('ring-8', 'ring-yellow-400'), 1500);
+          }
+        }
+      }, 350);
+    }
+
+    const rsvpNameInput = document.getElementById('rsvpName');
+    const headcountContainer = document.getElementById('headcountContainer');
+    const kidsCountVal = document.getElementById('kidsCountVal');
+    const adultsCountVal = document.getElementById('adultsCountVal');
+    const btnAttendingYes = document.getElementById('btnAttendingYes');
+    const btnAttendingNo = document.getElementById('btnAttendingNo');
+
+    function setAttendanceStatus(status) {
+      playTone('tap');
+      isAttending = status;
+      if (isAttending) {
+        btnAttendingYes.className = "py-3 px-3 rounded-2xl font-chunky text-xs sm:text-sm border-2 border-barbie bg-gradient-to-r from-barbie to-pink-500 text-white shadow-md flex items-center justify-center gap-1.5 transition transform active:scale-95 cursor-pointer";
+        btnAttendingNo.className = "py-3 px-3 rounded-2xl font-chunky text-xs sm:text-sm border-2 border-gray-200 bg-gray-50 text-gray-500 hover:bg-gray-100 flex items-center justify-center gap-1.5 transition transform active:scale-95 cursor-pointer";
+        headcountContainer.classList.remove('hidden');
+      } else {
+        btnAttendingNo.className = "py-3 px-3 rounded-2xl font-chunky text-xs sm:text-sm border-2 border-red-500 bg-red-500 text-white shadow-md flex items-center justify-center gap-1.5 transition transform active:scale-95 cursor-pointer";
+        btnAttendingYes.className = "py-3 px-3 rounded-2xl font-chunky text-xs sm:text-sm border-2 border-gray-200 bg-gray-50 text-gray-500 hover:bg-gray-100 flex items-center justify-center gap-1.5 transition transform active:scale-95 cursor-pointer";
+        headcountContainer.classList.add('hidden');
+      }
+    }
+
+    function modifyGuestCount(type, delta) {
+      playTone('tap');
+      if (type === 'kids') {
+        kidsCount = Math.max(0, kidsCount + delta);
+        kidsCountVal.textContent = kidsCount;
+      } else if (type === 'adults') {
+        adultsCount = Math.max(0, adultsCount + delta);
+        adultsCountVal.textContent = adultsCount;
+      }
+    }
+
+    function constructRsvpString() {
+      const name = rsvpNameInput.value.trim() || "[Name]";
+      let msg = "";
+
+      if (isAttending) {
+        msg = `RSVP - Aarzoo's 5th Birthday (Barbie & Ken Party)\n` +
+              `Name: ${name}\n` +
+              `Attending: Yes, joyfully! (${kidsCount} Kids, ${adultsCount} Adults)\n`;
+        
+        if (quizCompleted) {
+          msg += `Quiz score: ${triviaScore}/5 correct on the first try`;
+        } else if (triviaScore > 0) {
+          msg += `Quiz score: ${triviaScore}/5 correct`;
+        } else {
+          msg += `Quiz score: Skipped`;
+        }
+      } else {
+        msg = `RSVP - Aarzoo's 5th Birthday (Barbie & Ken Party)\n` +
+              `Name: ${name}\n` +
+              `Attending: Unable to attend, sending warm wishes to Aarzoo!`;
+      }
+      return msg;
+    }
+
+    function submitWhatsAppRsvp(e) {
+      e.preventDefault();
+      playTone('unseal');
+      const rawText = constructRsvpString();
+      const encodedMsg = encodeURIComponent(rawText);
+      const waNumber = "9971289329";
+      const waUrl = `https://api.whatsapp.com/send?phone=${waNumber}&text=${encodedMsg}`;
+
+      confetti({
+        particleCount: 90,
+        spread: 80,
+        origin: { y: 0.6 }
+      });
+
+      window.open(waUrl, '_blank');
+    }
+
+    /* ----------------------------------------------------
+       H. CALENDAR INVITE (.ICS)
+    ---------------------------------------------------- */
+    function downloadCalendarInvite() {
+      playTone('tap');
+      const icsEvent = [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "PRODID:-//Aarzoo 5th Birthday//EN",
+        "BEGIN:VEVENT",
+        "SUMMARY:Aarzoo's 5th Birthday Party (Barbie & Ken)",
+        "DESCRIPTION:Join Aarzoo's 5th Birthday Celebration! 2nd Floor Play Area from 11:30 AM to 1:00 PM followed by snacks at Pizza Hut. SOCKS ARE MANDATORY FOR THE PLAY AREA!",
+        "LOCATION:Bhartiya City, Bengaluru",
+        "DTSTART:20261101T060000Z",
+        "DTEND:20261101T090000Z",
+        "STATUS:CONFIRMED",
+        "END:VEVENT",
+        "END:VCALENDAR"
+      ].join("\r\n");
+
+      const blob = new Blob([icsEvent], { type: "text/calendar;charset=utf-8" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "Aarzoo-5th-Birthday-Party.ics";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  </script>
+</body>
+</html>
